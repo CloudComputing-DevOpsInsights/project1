@@ -1,0 +1,110 @@
+Deployment Instructions
+Step 1: Create an EC2 Instance
+Log in to the AWS Management Console.
+Navigate to EC2 and click on Launch Instance.
+Select Amazon Machine Image (AMI):
+Choose Ubuntu (Free Tier eligible).
+Choose Instance Type:
+Select the t2.micro instance type (Free Tier eligible).
+Configure Instance:
+Configure as needed (default settings are usually fine).
+Configure Security Group:
+Create a new security group or select an existing one, ensuring to allow HTTP (port 80) and HTTPS (port 443) traffic.
+Select Key Pair:
+Create a new key pair or select an existing one. Download the key pair (PEM file) and keep it safe.
+Launch the instance.
+
+Step 2: Clone the Repository
+SSH into the EC2 Instance:
+bash
+Copy code
+ssh -i /path/to/your-key.pem ubuntu@<your-ec2-public-ip>
+Clone the Project Repository:
+git clone https://github.com/CloudComputing-DevOpsInsights/project1.git
+cd project1
+Step 3: Install Dependencies
+Make the install script executable:
+
+chmod +x install.sh
+Run the installation script:
+
+bash
+Copy code
+./install.sh
+Step 4: Create RDS Instance
+Navigate to RDS in the AWS Management Console.
+Click on Create database.
+Select MySQL as the database engine.
+Configure Database Settings:
+DB Instance Identifier: demo_db
+Master Username: admin
+Master Password: yourpassword
+Configure Connectivity:
+Select Private access.
+Ensure that the RDS instance is in the same region as your EC2 instance.
+Launch the RDS Instance.
+Step 5: Configure WordPress
+Navigate to the WordPress configuration file:
+
+bash
+Copy code
+cd /var/www/html/wordpress
+vim wp-config-sample.php
+Edit Database Configuration: Replace the placeholders with your RDS details:
+
+php
+Copy code
+define( 'DB_NAME', 'demo_db' );
+define( 'DB_USER', 'admin' );
+define( 'DB_PASSWORD', 'yourpassword' );
+define( 'DB_HOST', 'rds_endpoint' );
+Generate Security Keys: Visit WordPress Secret Key Generator and replace the following in wp-config-sample.php:
+
+https://api.wordpress.org/secret-key/1.1/salt/
+php
+Copy code
+define('AUTH_KEY',         'YOUR_GENERATED_KEY');
+define('SECURE_AUTH_KEY',  'YOUR_GENERATED_KEY');
+define('LOGGED_IN_KEY',    'YOUR_GENERATED_KEY');
+define('NONCE_KEY',        'YOUR_GENERATED_KEY');
+define('AUTH_SALT',        'YOUR_GENERATED_KEY');
+define('SECURE_AUTH_SALT', 'YOUR_GENERATED_KEY');
+define('LOGGED_IN_SALT',   'YOUR_GENERATED_KEY');
+define('NONCE_SALT',       'YOUR_GENERATED_KEY');
+Step 6: Configure phpMyAdmin
+Edit phpMyAdmin configuration:
+
+bash
+Copy code
+cd /etc/phpmyadmin/
+vim config.inc.php
+Add RDS Connection Details: Paste the following below the end of servers configuration:
+
+php
+Copy code
+$i++;
+$cfg['Servers'][$i]['host'] = 'rds endpoint';
+$cfg['Servers'][$i]['port'] = '3306';
+$cfg['Servers'][$i]['user'] = 'admin';
+$cfg['Servers'][$i]['password'] = 'yourpassword';
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+Step 7: Restart Apache
+Restart Apache to apply changes:
+bash
+Copy code
+sudo systemctl restart apache2
+Step 8: Configure .htaccess error 
+Allow overrides: Edit the Apache configuration:
+
+bash
+Copy code
+sudo vim /etc/apache2/sites-available/000-default.conf
+Add the following:
+
+apache
+
+<Directory /var/www/html>
+    AllowOverride All
+</Directory>
+Restart Apache again
+sudo systemctl restart apache2
