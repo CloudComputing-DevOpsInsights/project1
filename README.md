@@ -8,3 +8,5 @@ AWS Account
 SSH access to an EC2 instance
 An RDS instance running MySQL
 Basic understanding of Linux commands
+
+install.sh - Run `install.sh` to automatically install Apache2, WordPress, PHP, phpMyAdmin, and all required dependencies on your system.
